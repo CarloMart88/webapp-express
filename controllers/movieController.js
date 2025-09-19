@@ -25,15 +25,21 @@ const show = (req, res) => {
     if (err) return res.status(500).json({ error: "Errore durante l'esecuzione della query film", details: err });
     if (movieResult.length === 0) return res.status(404).json({ error: "Film non trovato" });
 
+    const movie = movieResult[0];
+    movie.image = req.imagePath + movie.image
+
     // seconda query per le recensioni, dentro la callback della prima
     connection.query(sqlReviews, [id], (err, reviewsResult) => {
       if (err) return res.status(500).json({ error: "Errore durante l'esecuzione della query recensioni", details: err });
 
-      // restituisco entrambe le informazioni
-      res.json({
-        movie: movieResult[0],
+      const movieWithReviews = {
+        
+        ...movie,
         reviews: reviewsResult
-      });
+      
+      }
+      // restituisco entrambe le informazioni
+      res.json(movieWithReviews);
     });
   });
 };
