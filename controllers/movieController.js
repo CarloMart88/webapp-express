@@ -14,21 +14,29 @@ const index = (req , res) =>{
 
 };
 
-const show = (req , res) =>{
+const show = (req, res) => {
+  const { id } = req.params;
 
-  const { id } = req.params
-  //creo la query
-  const sql = "SELECT * FROM movies WHERE id = ? "
+  const sqlMovie = "SELECT * FROM movies WHERE id = ?";
+  const sqlReviews = "SELECT * FROM reviews WHERE id = ?"; // 
 
-  //creo la connessione 
-  connection.query( sql ,[id], (err, result) =>{
-    if(err) return res.status(500).json({error:"errore durante l'esecuzione della query"})
-    if(result.length === 0 ) return res.status(404).json({ error: "Film non trovato" })
-      res.json(result[0])
-  })
+  // prima query per il film
+  connection.query(sqlMovie, [id], (err, movieResult) => {
+    if (err) return res.status(500).json({ error: "Errore durante l'esecuzione della query film", details: err });
+    if (movieResult.length === 0) return res.status(404).json({ error: "Film non trovato" });
 
+    // seconda query per le recensioni, dentro la callback della prima
+    connection.query(sqlReviews, [id], (err, reviewsResult) => {
+      if (err) return res.status(500).json({ error: "Errore durante l'esecuzione della query recensioni", details: err });
 
-}
+      // restituisco entrambe le informazioni
+      res.json({
+        movie: movieResult[0],
+        reviews: reviewsResult
+      });
+    });
+  });
+};
 
 
 module.exports = {index,  show}
