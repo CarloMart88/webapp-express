@@ -6,10 +6,19 @@ const app = express()
 // definisco il numero di porta su cui deve girare l'applicazione
 const port = process.env.PORT
 
+//importo i middlewares
+const notFound = require("./middleware/notFound")
+const errorsHandler = require("./middleware/errorsHandler")
+const imagePath = require('./middleware/imagePathMiddleware')
+
+//importo il router
 const movieRouter = require("./routers/movieRouter")
 
-
+// per usare le immagini
 app.use(express.static('public'))
+
+//uso il middleware imagePath
+app.use(imagePath)
 
 // rotta base 
 
@@ -19,6 +28,11 @@ app.get("/", (req , res) =>{
 
 //rotte per i movies
 app.use("/api/movies" , movieRouter)
+
+//uso i middleware
+app.use(notFound)
+app.use(errorsHandler)
+
 
 // dico al server di rimanere in ascolto sulla porta 
 app.listen(port, () =>{
