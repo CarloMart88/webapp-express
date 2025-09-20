@@ -7,8 +7,15 @@ const index = (req , res) =>{
 
   //creo la connessione 
   connection.query( sql , (err, result) =>{
-    if(err) return res.status(500).json({error:"errore durante l'esecuzione della query"})
-      res.json(result)
+    if(err) return res.status(500).json({error:"errore durante l'esecuzione della query"+err})
+      const books = result.map((book) => {
+          return{
+            ...book,
+            image: req.imagePath + book.image
+          }
+
+      })
+      res.json(books)
   })
 
 
